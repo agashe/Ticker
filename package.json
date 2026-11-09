@@ -1,0 +1,32 @@
+{
+  "name": "ticker",
+  "version": "0.1.0",
+  "description": "A sleek desktop clock gadget that keeps time right on your workspace",
+  "main": "dist/main/main.js",
+  "scripts": {
+    "build": "node scripts/build.js",
+    "watch": "node scripts/build.js --watch",
+    "start": "electron .",
+    "dev": "node scripts/dev.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/agashe/Ticker.git"
+  },
+  "keywords": [
+    "electron",
+    "gadget",
+    "desktop-clock",
+    "analog-clock",
+    "typescript"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "electron": "^45.2.3",
+    "esbuild": "^0.28.2",
+    "typescript": "^7.0.2"
+  }
+}
