@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Planned Features
+- Pre-compiled standalone executable binaries and packages for additional platforms and operating systems (macOS, Windows, and Linux ARM64).
 - Scale slider or keyboard-based resize controls to adjust clock size.
 - Subtle analog tick sound effect toggle.
 - Digital time display and multi-timezone support.
@@ -20,6 +21,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] - 2026-11-10
 
 ### Initial Release
+
+#### Packaging & Platform Distribution
+- **Standalone Executable Linux Package (ELF AMD64)**: Packaged distribution archive (`ticker-*-linux-x64.tar.gz`) containing the native ELF 64-bit executable binary (`ticker`), allowing users to run Ticker out-of-the-box without requiring Node.js or npm.
+- **Platform Scope**: Initial release targets 64-bit Linux AMD64 (x86_64). Support for other platforms and operating systems (macOS, Windows, and Linux ARM64) is scheduled for future releases.
 
 #### Gadget Form & Aesthetics
 - **Frameless Circular Form Factor**: Seamless transparent window where only the circular clock dial floats directly on your desktop.

@@ -35,17 +35,23 @@ jobs:
       - name: Build application bundle
         run: npm run build
 
+      - name: Package Linux ELF executable (amd64)
+        run: npm run package:linux -- "${{ github.ref_name }}"
+
       - name: Extract release notes from CHANGELOG
         run: node scripts/extract-changelog.js "${{ github.ref_name }}" RELEASE_NOTES.md
 
-      - name: Create release distribution archive
-        run: tar -czf "ticker-${{ github.ref_name }}.tar.gz" dist scripts package.json package-lock.json README.md CHANGELOG.md LICENSE
+      - name: Create source distribution archive
+        run: tar -czf "ticker-${{ github.ref_name }}-source.tar.gz" dist scripts package.json package-lock.json README.md CHANGELOG.md LICENSE
 
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           name: "Ticker ${{ github.ref_name }}"
           body_path: RELEASE_NOTES.md
-          files: "ticker-${{ github.ref_name }}.tar.gz"
+          files: |
+            release-builds/ticker-*-linux-x64.tar.gz
+            release-builds/ticker-linux-x64.tar.gz
+            ticker-${{ github.ref_name }}-source.tar.gz
           draft: false
           prerelease: false

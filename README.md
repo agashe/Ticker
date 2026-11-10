@@ -31,7 +31,25 @@ A minimalist, transparent desktop clock gadget built with **TypeScript** and **E
 
 ## Getting Started
 
-### 1. Quick Start from Source
+### 1. Download Pre-built Binary (Linux AMD64)
+
+For users who want to run Ticker without building from source or installing Node.js:
+
+1. Download the latest release archive (`ticker-v*-linux-x64.tar.gz`) from [Releases](https://github.com/agashe/Ticker/releases).
+2. Extract the archive:
+   ```bash
+   tar -xzf ticker-*-linux-x64.tar.gz
+   cd ticker-linux-x64
+   ```
+3. Run the executable ELF binary directly:
+   ```bash
+   ./ticker
+   ```
+
+> [!NOTE]
+> **Platform Availability**: Pre-compiled standalone executable ELF binaries are primarily provided for **Linux AMD64 (x86_64)**. Support and packages for other platforms and operating systems (macOS, Windows, and Linux ARM64) will be added in upcoming releases.
+
+### 2. Quick Start from Source
 
 To clone, build, and run Ticker directly:
 
@@ -49,7 +67,7 @@ For live development with hot rebuilds:
 npm run dev
 ```
 
-### 2. Manual Installation on Linux (Home Directory)
+### 3. Manual Installation on Linux (Home Directory)
 
 To install Ticker permanently under your user's home directory and launch it from anywhere via your terminal:
 
@@ -118,14 +136,15 @@ If `~/.local/bin` is not yet in your PATH, add:
 
 Once configured, simply type `ticker` in any terminal to launch your clock gadget.
 
-### 3. Available Scripts
+### 4. Available Scripts
 
 | Command | Description |
-| : | : |
+| :--- | :--- |
 | `npm run build` | Compiles TypeScript and packages assets to `dist/` |
 | `npm run watch` | Watches for file changes and rebuilds on save |
 | `npm start` | Launches the compiled Electron application |
 | `npm run dev` | Runs the build in watch mode and launches Electron |
+| `npm run package:linux` | Packages the standalone Linux ELF executable (AMD64) into `release-builds/` |
 | `npm run typecheck` | Type-checks all TypeScript files (`tsc -p tsconfig.test.json --noEmit`) |
 | `npm test` | Runs the full Vitest unit test suite |
 | `npm run test:watch` | Runs Vitest in interactive watch mode |
@@ -136,7 +155,7 @@ Once configured, simply type `ticker` in any terminal to launch your clock gadge
 ## Controls & Shortcuts
 
 | Action | Control |
-| : | : |
+| :--- | :--- |
 | **Move Clock** | Click & drag anywhere on the clock |
 | **Open Menu** | Right-click anywhere on the clock |
 | **Quick Close** | Press `Esc`, `Ctrl + Q`, or `Ctrl + W` |
@@ -158,6 +177,7 @@ Ticker/
 ├── scripts/
 │   ├── build.js              # Fast esbuild compilation and asset synchronization
 │   ├── dev.js                # Live development runner
+│   ├── package.js            # Linux AMD64 ELF packager and release archive generator
 │   └── extract-changelog.js  # Extracts tag-specific release notes from CHANGELOG.md
 ├── src/
 │   ├── types/

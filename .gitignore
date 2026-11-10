@@ -15,6 +15,7 @@ dist/
 build/
 bin/
 out/
+release-builds/
 coverage/
 
 # Dependencies / Package managers

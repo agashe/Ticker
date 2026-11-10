@@ -14,9 +14,11 @@ if (!fs.existsSync(changelogPath)) {
 
 const changelog = fs.readFileSync(changelogPath, 'utf8');
 
+const platformNotice = `\n\n---\n> [!NOTE]\n> **Platform Availability**: Pre-compiled executable ELF Linux binaries are provided for **Linux AMD64 (x86_64)** (\`ticker-*-linux-x64.tar.gz\`). Support and packages for additional platforms and operating systems (macOS, Windows, Linux ARM64) will be released in upcoming versions.`;
+
 if (!version) {
   console.log('No version specified, creating fallback release notes');
-  fs.writeFileSync(outputPath, 'Release ' + new Date().toISOString().split('T')[0] + '\n', 'utf8');
+  fs.writeFileSync(outputPath, 'Release ' + new Date().toISOString().split('T')[0] + platformNotice + '\n', 'utf8');
   process.exit(0);
 }
 
@@ -25,9 +27,9 @@ const match = regex.exec(changelog);
 
 if (match && match[1]) {
   const notes = match[1].trim();
-  fs.writeFileSync(outputPath, notes + '\n', 'utf8');
+  fs.writeFileSync(outputPath, notes + platformNotice + '\n', 'utf8');
   console.log(`Successfully extracted release notes for version ${version} to ${outputPath}`);
 } else {
   console.warn(`Version [${version}] not found in CHANGELOG.md. Using fallback note.`);
-  fs.writeFileSync(outputPath, `Release v${version}\n`, 'utf8');
+  fs.writeFileSync(outputPath, `Release v${version}\n` + platformNotice + '\n', 'utf8');
 }

@@ -45,6 +45,7 @@ Ticker/
 ├── scripts/
 │   ├── build.js          # Fast esbuild build pipeline for main, preload, and renderer
 │   ├── dev.js            # Development script with watcher and auto-launch
+│   ├── package.js        # Standalone Linux AMD64 ELF binary and tarball packager
 │   └── extract-changelog.js # Extracts tag-specific release notes from CHANGELOG.md
 ├── src/
 │   ├── types/
@@ -95,7 +96,9 @@ Ticker/
 - [x] Phase 4: Dragging, right-click context menu, and multiple close mechanisms.
 - [x] Phase 5: Build scripts, README, and developer workflow.
 - [x] Phase 6: Decouple logic from rendering & complete unit test suite with Vitest.
+- [x] Phase 7: Standalone Linux AMD64 ELF binary packaging (`package.js` + GitHub Release automation).
 - [ ] Future Enhancements:
+  - Additional platform & OS support (macOS, Windows, Linux ARM64).
   - Resizable gadget (scale slider or pinch-to-zoom).
   - Sound effects (subtle optional tick audio toggle).
   - Multiple time zones / digital time sub-display.
