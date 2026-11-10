@@ -15,6 +15,7 @@ dist/
 build/
 bin/
 out/
+coverage/
 
 # Dependencies / Package managers
 node_modules/

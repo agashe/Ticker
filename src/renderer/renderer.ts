@@ -1,5 +1,10 @@
 import { Clock } from './clock';
 import { ClockConfig } from '../types/electron';
+import {
+  getThemeClass,
+  isCloseShortcut,
+  shouldInitiateDrag
+} from './event-helpers';
 
 document.addEventListener('DOMContentLoaded', async () => {
   const container = document.getElementById('clock-container');
@@ -13,8 +18,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Apply theme
   const applyTheme = (theme: 'light' | 'dark') => {
+    const themeClass = getThemeClass(theme);
     document.body.classList.remove('theme-light', 'theme-dark');
-    document.body.classList.add(theme === 'dark' ? 'theme-dark' : 'theme-light');
+    document.body.classList.add(themeClass);
   };
 
   // Fetch initial config
@@ -40,8 +46,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   let isDragging = false;
 
   container.addEventListener('mousedown', (e: MouseEvent) => {
-    // Only drag on left click (button 0), and ignore if clicking close button
-    if (e.button !== 0 || (e.target as HTMLElement).closest('#close-btn')) {
+    if (!shouldInitiateDrag(e.button, e.target as HTMLElement)) {
       return;
     }
     isDragging = true;
@@ -81,10 +86,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Keyboard Shortcuts
   window.addEventListener('keydown', (e: KeyboardEvent) => {
-    if (
-      e.key === 'Escape' ||
-      ((e.ctrlKey || e.metaKey) && (e.key === 'q' || e.key === 'w'))
-    ) {
+    if (isCloseShortcut(e)) {
       window.electronAPI?.closeApp();
     }
   });

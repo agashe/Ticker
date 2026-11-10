@@ -1,3 +1,9 @@
+import {
+  calculateAllTicks,
+  calculateHandAngles,
+  getRotationTransform
+} from './clock-math';
+
 export class Clock {
   private svg: SVGSVGElement;
   private hourHand: SVGElement | null = null;
@@ -42,33 +48,21 @@ export class Clock {
     innerRing.setAttribute('class', 'clock-inner-ring');
     this.svg.appendChild(innerRing);
 
-    // Tick marks group
+    // Tick marks group rendered using pure geometry calculation
     const ticksGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     ticksGroup.setAttribute('class', 'clock-ticks');
 
-    for (let i = 0; i < 60; i++) {
-      const angle = (i * 6 * Math.PI) / 180;
-      const isHour = i % 5 === 0;
-      const tickLength = isHour ? 9 : 4.5;
-      const strokeWidth = isHour ? 2.5 : 1;
-
-      const rOuter = radius - 5;
-      const rInner = rOuter - tickLength;
-
-      const x1 = cx + rOuter * Math.sin(angle);
-      const y1 = cy - rOuter * Math.cos(angle);
-      const x2 = cx + rInner * Math.sin(angle);
-      const y2 = cy - rInner * Math.cos(angle);
-
-      const tick = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-      tick.setAttribute('x1', x1.toFixed(2));
-      tick.setAttribute('y1', y1.toFixed(2));
-      tick.setAttribute('x2', x2.toFixed(2));
-      tick.setAttribute('y2', y2.toFixed(2));
-      tick.setAttribute('stroke-width', String(strokeWidth));
-      tick.setAttribute('stroke-linecap', 'round');
-      tick.setAttribute('class', isHour ? 'tick-hour' : 'tick-minute');
-      ticksGroup.appendChild(tick);
+    const ticks = calculateAllTicks({ cx, cy, radius });
+    for (const tick of ticks) {
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line.setAttribute('x1', String(tick.x1));
+      line.setAttribute('y1', String(tick.y1));
+      line.setAttribute('x2', String(tick.x2));
+      line.setAttribute('y2', String(tick.y2));
+      line.setAttribute('stroke-width', String(tick.strokeWidth));
+      line.setAttribute('stroke-linecap', 'round');
+      line.setAttribute('class', tick.className);
+      ticksGroup.appendChild(line);
     }
     this.svg.appendChild(ticksGroup);
 
@@ -142,25 +136,17 @@ export class Clock {
     }
   }
 
-  private updateHands(): void {
-    const now = new Date();
-    const ms = now.getMilliseconds();
-    const sec = now.getSeconds() + ms / 1000;
-    const min = now.getMinutes() + sec / 60;
-    const hr = (now.getHours() % 12) + min / 60;
-
-    const secAngle = sec * 6;
-    const minAngle = min * 6;
-    const hrAngle = hr * 30;
+  public updateHands(date: Date = new Date()): void {
+    const { hour, minute, second } = calculateHandAngles(date);
 
     if (this.secondHand) {
-      this.secondHand.setAttribute('transform', `rotate(${secAngle} 100 100)`);
+      this.secondHand.setAttribute('transform', getRotationTransform(second));
     }
     if (this.minuteHand) {
-      this.minuteHand.setAttribute('transform', `rotate(${minAngle} 100 100)`);
+      this.minuteHand.setAttribute('transform', getRotationTransform(minute));
     }
     if (this.hourHand) {
-      this.hourHand.setAttribute('transform', `rotate(${hrAngle} 100 100)`);
+      this.hourHand.setAttribute('transform', getRotationTransform(hour));
     }
   }
 }

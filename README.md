@@ -1,10 +1,10 @@
-# ⏱️ Ticker
+# Ticker
 
 A minimalist, transparent desktop clock gadget built with **TypeScript** and **Electron**. Ticker floats cleanly on your desktop with no window frame or rectangular background—just a crisp circular analog clock with smooth, real-time 3-hand movement.
 
 ---
 
-## ✨ Features
+## Features
 
 - **Frameless Circular Gadget**: Seamlessly transparent window—only the circular clock dial floats on your desktop.
 - **Classic 3-Hand Movement**: Hour hand, minute hand, and a continuous 60fps sweep second hand.
@@ -22,14 +22,14 @@ A minimalist, transparent desktop clock gadget built with **TypeScript** and **E
 
 ---
 
-## 🛠️ Prerequisites
+## Prerequisites
 
 - **Node.js**: `v18.0.0` or newer (tested on Node v24).
 - **Linux**: X11 or Wayland with compositing enabled (e.g. GNOME, KDE, XFCE + Picom) for transparent window rendering.
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### 1. Installation
 
@@ -65,11 +65,14 @@ npm run dev
 | `npm run watch` | Watches for file changes and rebuilds on save |
 | `npm start` | Launches the compiled Electron application |
 | `npm run dev` | Runs the build in watch mode and launches Electron |
-| `npm run typecheck` | Type-checks all TypeScript files (`tsc --noEmit`) |
+| `npm run typecheck` | Type-checks all TypeScript files (`tsc -p tsconfig.test.json --noEmit`) |
+| `npm test` | Runs the full Vitest unit test suite |
+| `npm run test:watch` | Runs Vitest in interactive watch mode |
+| `npm run test:coverage` | Runs Vitest with v8 code coverage reporting |
 
 ---
 
-## 🎮 Controls & Shortcuts
+## Controls & Shortcuts
 
 | Action | Control |
 | :--- | :--- |
@@ -83,7 +86,7 @@ npm run dev
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```text
 Ticker/
@@ -95,22 +98,34 @@ Ticker/
 │   │   └── electron.d.ts # TypeScript interfaces for IPC bridge and config
 │   ├── main/
 │   │   ├── main.ts       # Electron main process & transparent window lifecycle
+│   │   ├── window-math.ts# Pure window bounds checking, display math & config normalization
 │   │   ├── config.ts     # Settings persistence (position, theme, alwaysOnTop)
-│   │   └── menu.ts       # Native right-click context menu
+│   │   └── menu.ts       # Native right-click context menu and template builder
 │   ├── preload/
 │   │   └── preload.ts    # Secure contextBridge API for renderer
 │   └── renderer/
 │       ├── index.html    # Clock DOM mount point
 │       ├── styles.css    # Transparent layout, monochrome themes, animations
-│       ├── clock.ts      # Vector SVG dial generation & 60fps sweep logic
+│       ├── clock-math.ts # Pure angle math, continuous sweep logic & dial geometry
+│       ├── clock.ts      # Vector SVG dial generation & animation frame loop
+│       ├── event-helpers.ts # Pure shortcut detection, theme classes & drag guards
 │       └── renderer.ts   # Mouse drag, context menu, and keyboard handling
+├── tests/
+│   ├── clock-math.test.ts   # Unit tests for clock angles, sweep & tick trigonometry
+│   ├── window-math.test.ts  # Unit tests for multi-display bounds, normalization & drag
+│   ├── event-helpers.test.ts# Unit tests for shortcuts, theme resolution & drag triggers
+│   ├── menu.test.ts         # Unit tests for context menu template & BrowserWindow integration
+│   └── config.test.ts       # Unit tests for config loading, fallback defaults & save
+├── vitest.config.mts     # Vitest configuration with v8 coverage
+├── CHANGELOG.md          # User-facing application feature release log
 ├── SPECS.md              # Technical specifications & architectural decisions
 ├── tsconfig.json
+├── tsconfig.test.json
 └── package.json
 ```
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

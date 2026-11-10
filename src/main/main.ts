@@ -1,6 +1,7 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import * as path from 'path';
 import { loadConfig, saveConfig, AppConfig } from './config';
+import { calculateDraggedPosition } from './window-math';
 import { createContextMenu } from './menu';
 
 // Set application name
@@ -86,12 +87,12 @@ app.whenReady().then(() => {
 
   ipcMain.on('drag', (event, { screenX, screenY }) => {
     if (!isDragging || !mainWindow || mainWindow.isDestroyed()) return;
-    const deltaX = screenX - dragOriginX;
-    const deltaY = screenY - dragOriginY;
-    mainWindow.setPosition(
-      Math.round(initialWinX + deltaX),
-      Math.round(initialWinY + deltaY)
+    const nextPos = calculateDraggedPosition(
+      { x: initialWinX, y: initialWinY },
+      { screenX: dragOriginX, screenY: dragOriginY },
+      { screenX, screenY }
     );
+    mainWindow.setPosition(nextPos.x, nextPos.y);
   });
 
   ipcMain.on('stop-drag', () => {

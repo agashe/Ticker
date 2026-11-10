@@ -8,7 +8,10 @@
     "watch": "node scripts/build.js --watch",
     "start": "electron .",
     "dev": "node scripts/dev.js",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc -p tsconfig.test.json --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "repository": {
     "type": "git",
@@ -25,8 +28,10 @@
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^26.6.6",
+    "@vitest/coverage-v8": "^5.1.0",
     "electron": "^45.2.3",
     "esbuild": "^0.28.2",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.0"
   }
 }

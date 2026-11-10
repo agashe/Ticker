@@ -32,26 +32,38 @@ Ticker/
 ├── .gitignore
 ├── LICENSE
 ├── README.md             # End-user and developer documentation
+├── CHANGELOG.md          # User-facing application feature release log
 ├── SPECS.md              # Project context, technical decisions, and roadmap (this file)
 ├── package.json
 ├── tsconfig.json
+├── tsconfig.test.json
+├── vitest.config.mts     # Vitest unit test configuration with v8 coverage
 ├── scripts/
 │   ├── build.js          # Fast esbuild build pipeline for main, preload, and renderer
 │   └── dev.js            # Development script with watcher and auto-launch
-└── src/
-    ├── types/
-    │   └── electron.d.ts # TypeScript declarations for window.electronAPI and IPC payloads
-    ├── main/
-    │   ├── main.ts       # Electron lifecycle, BrowserWindow setup, transparent window handling
-    │   ├── config.ts     # Persistent user settings (position, alwaysOnTop, theme)
-    │   └── menu.ts       # Native context menu construction and IPC handlers
-    ├── preload/
-    │   └── preload.ts    # Secure contextBridge API exposing drag, window control, and menu triggers
-    └── renderer/
-        ├── index.html    # Clean DOM host for the circular clock
-        ├── styles.css    # Gadget layout, transparent body, animations, monochrome themes
-        ├── clock.ts      # Vector dial generator, math for hand rotations, 60fps tick loop
-        └── renderer.ts   # UI event listeners, drag handling, shortcut bindings
+├── src/
+│   ├── types/
+│   │   └── electron.d.ts # TypeScript declarations for window.electronAPI and IPC payloads
+│   ├── main/
+│   │   ├── main.ts       # Electron lifecycle, BrowserWindow setup, transparent window handling
+│   │   ├── window-math.ts# Display bounds checking, drag math & config normalization
+│   │   ├── config.ts     # Persistent user settings (position, alwaysOnTop, theme)
+│   │   └── menu.ts       # Native context menu construction and template builder
+│   ├── preload/
+│   │   └── preload.ts    # Secure contextBridge API exposing drag, window control, and menu triggers
+│   └── renderer/
+│       ├── index.html    # Clean DOM host for the circular clock
+│       ├── styles.css    # Gadget layout, transparent body, animations, monochrome themes
+│       ├── clock-math.ts # Pure angle math, continuous sweep logic & dial geometry
+│       ├── clock.ts      # Vector dial generator & 60fps tick loop
+│       ├── event-helpers.ts # Pure shortcut detection, theme classes & drag guards
+│       └── renderer.ts   # UI event listeners, drag handling, shortcut bindings
+└── tests/
+    ├── clock-math.test.ts   # Unit tests for clock angles, sweep & tick trigonometry
+    ├── window-math.test.ts  # Unit tests for multi-display bounds, normalization & drag
+    ├── event-helpers.test.ts# Unit tests for shortcuts, theme resolution & drag triggers
+    ├── menu.test.ts         # Unit tests for context menu template & BrowserWindow integration
+    └── config.test.ts       # Unit tests for config loading, fallback defaults & save
 ```
 
 ## 5. Technical Decisions & Linux Caveats
@@ -77,6 +89,7 @@ Ticker/
 - [x] Phase 3: High-precision 3-hand analog clock with monochrome black & white visuals.
 - [x] Phase 4: Dragging, right-click context menu, and multiple close mechanisms.
 - [x] Phase 5: Build scripts, README, and developer workflow.
+- [x] Phase 6: Decouple logic from rendering & complete unit test suite with Vitest.
 - [ ] Future Enhancements:
   - Resizable gadget (scale slider or pinch-to-zoom).
   - Sound effects (subtle optional tick audio toggle).

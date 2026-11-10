@@ -1,22 +1,29 @@
 import { Menu, BrowserWindow, MenuItemConstructorOptions } from 'electron';
 import { AppConfig, saveConfig } from './config';
 
-export function createContextMenu(
-  win: BrowserWindow,
-  config: AppConfig,
-  onConfigChange: (updated: AppConfig) => void
-): Menu {
-  const template: MenuItemConstructorOptions[] = [
+export interface MenuActions {
+  onToggleAlwaysOnTop: (checked: boolean) => void;
+  onThemeChange: (theme: 'light' | 'dark') => void;
+  onCenter: () => void;
+  onClose: () => void;
+}
+
+export interface MenuState {
+  isAlwaysOnTop: boolean;
+  theme: 'light' | 'dark';
+}
+
+export function buildContextMenuTemplate(
+  actions: MenuActions,
+  state: MenuState
+): MenuItemConstructorOptions[] {
+  return [
     {
       label: 'Always on Top',
       type: 'checkbox',
-      checked: win.isAlwaysOnTop(),
+      checked: state.isAlwaysOnTop,
       click: (item) => {
-        const nextValue = item.checked;
-        win.setAlwaysOnTop(nextValue);
-        config.alwaysOnTop = nextValue;
-        saveConfig(config);
-        onConfigChange(config);
+        actions.onToggleAlwaysOnTop(Boolean(item.checked));
       }
     },
     {
@@ -25,21 +32,17 @@ export function createContextMenu(
         {
           label: 'Light (White Dial)',
           type: 'radio',
-          checked: config.theme === 'light',
+          checked: state.theme === 'light',
           click: () => {
-            config.theme = 'light';
-            saveConfig(config);
-            onConfigChange(config);
+            actions.onThemeChange('light');
           }
         },
         {
           label: 'Dark (Black Dial)',
           type: 'radio',
-          checked: config.theme === 'dark',
+          checked: state.theme === 'dark',
           click: () => {
-            config.theme = 'dark';
-            saveConfig(config);
-            onConfigChange(config);
+            actions.onThemeChange('dark');
           }
         }
       ]
@@ -47,11 +50,7 @@ export function createContextMenu(
     {
       label: 'Center Clock',
       click: () => {
-        win.center();
-        const [x, y] = win.getPosition();
-        config.x = x;
-        config.y = y;
-        saveConfig(config);
+        actions.onCenter();
       }
     },
     { type: 'separator' },
@@ -59,10 +58,46 @@ export function createContextMenu(
       label: 'Close Ticker',
       accelerator: 'CmdOrCtrl+Q',
       click: () => {
-        win.close();
+        actions.onClose();
       }
     }
   ];
+}
+
+export function createContextMenu(
+  win: BrowserWindow,
+  config: AppConfig,
+  onConfigChange: (updated: AppConfig) => void
+): Menu {
+  const template = buildContextMenuTemplate(
+    {
+      onToggleAlwaysOnTop: (checked) => {
+        win.setAlwaysOnTop(checked);
+        config.alwaysOnTop = checked;
+        saveConfig(config);
+        onConfigChange(config);
+      },
+      onThemeChange: (theme) => {
+        config.theme = theme;
+        saveConfig(config);
+        onConfigChange(config);
+      },
+      onCenter: () => {
+        win.center();
+        const [x, y] = win.getPosition();
+        config.x = x;
+        config.y = y;
+        saveConfig(config);
+      },
+      onClose: () => {
+        win.close();
+      }
+    },
+    {
+      isAlwaysOnTop: win.isAlwaysOnTop(),
+      theme: config.theme
+    }
+  );
 
   return Menu.buildFromTemplate(template);
 }
