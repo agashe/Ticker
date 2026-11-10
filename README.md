@@ -2,7 +2,7 @@
 
 A minimalist, transparent desktop clock gadget built with **TypeScript** and **Electron**. Ticker floats cleanly on your desktop with no window frame or rectangular background—just a crisp circular analog clock with smooth, real-time 3-hand movement.
 
----
+
 
 ## Features
 
@@ -20,14 +20,14 @@ A minimalist, transparent desktop clock gadget built with **TypeScript** and **E
   - **Hover Close Button**: A subtle `×` button appears when hovering over the top of the clock.
   - **Keyboard Shortcuts**: Press `Esc`, `Ctrl+Q`, or `Ctrl+W` anytime to exit.
 
----
+
 
 ## Prerequisites
 
 - **Node.js**: `v18.0.0` or newer (tested on Node v24).
 - **Linux**: X11 or Wayland with compositing enabled (e.g. GNOME, KDE, XFCE + Picom) for transparent window rendering.
 
----
+
 
 ## Getting Started
 
@@ -60,7 +60,7 @@ npm run dev
 ### 3. Available Scripts
 
 | Command | Description |
-| :--- | :--- |
+| : | : |
 | `npm run build` | Compiles TypeScript and packages assets to `dist/` |
 | `npm run watch` | Watches for file changes and rebuilds on save |
 | `npm start` | Launches the compiled Electron application |
@@ -70,12 +70,12 @@ npm run dev
 | `npm run test:watch` | Runs Vitest in interactive watch mode |
 | `npm run test:coverage` | Runs Vitest with v8 code coverage reporting |
 
----
+
 
 ## Controls & Shortcuts
 
 | Action | Control |
-| :--- | :--- |
+| : | : |
 | **Move Clock** | Click & drag anywhere on the clock |
 | **Open Menu** | Right-click anywhere on the clock |
 | **Quick Close** | Press `Esc`, `Ctrl + Q`, or `Ctrl + W` |
@@ -84,7 +84,7 @@ npm run dev
 | **Switch Theme** | Right-click → *Theme* → *Light* or *Dark* |
 | **Reset Position** | Right-click → *Center Clock* |
 
----
+
 
 ## Project Structure
 
@@ -124,8 +124,8 @@ Ticker/
 └── package.json
 ```
 
----
+
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+Ticker is licensed under the MIT License.
