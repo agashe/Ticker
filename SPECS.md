@@ -28,6 +28,10 @@
 ## 4. Architecture & Directory Structure
 ```
 Ticker/
+├── .github/
+│   └── workflows/
+│       ├── test.yml          # CI: Typecheck, Vitest coverage, and build on push/PR
+│       └── release.yml       # Release: Builds and publishes GitHub Release on v* tags
 ├── .editorconfig
 ├── .gitignore
 ├── LICENSE
@@ -40,7 +44,8 @@ Ticker/
 ├── vitest.config.mts     # Vitest unit test configuration with v8 coverage
 ├── scripts/
 │   ├── build.js          # Fast esbuild build pipeline for main, preload, and renderer
-│   └── dev.js            # Development script with watcher and auto-launch
+│   ├── dev.js            # Development script with watcher and auto-launch
+│   └── extract-changelog.js # Extracts tag-specific release notes from CHANGELOG.md
 ├── src/
 │   ├── types/
 │   │   └── electron.d.ts # TypeScript declarations for window.electronAPI and IPC payloads

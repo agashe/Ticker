@@ -31,31 +31,92 @@ A minimalist, transparent desktop clock gadget built with **TypeScript** and **E
 
 ## Getting Started
 
-### 1. Installation
+### 1. Quick Start from Source
 
-Clone the repository and install dependencies:
+To clone, build, and run Ticker directly:
 
 ```bash
 git clone https://github.com/agashe/Ticker.git
 cd Ticker
 npm install
-```
-
-### 2. Running the Clock
-
-To build and launch the gadget:
-
-```bash
-# Build TypeScript and launch Electron
 npm run build
 npm start
 ```
 
-Or run in development mode with hot rebuilds:
+For live development with hot rebuilds:
 
 ```bash
 npm run dev
 ```
+
+### 2. Manual Installation on Linux (Home Directory)
+
+To install Ticker permanently under your user's home directory and launch it from anywhere via your terminal:
+
+#### Step 1: Install to `~/.local/share/ticker`
+
+```bash
+mkdir -p ~/.local/share
+git clone https://github.com/agashe/Ticker.git ~/.local/share/ticker
+cd ~/.local/share/ticker
+npm install
+npm run build
+```
+
+#### Step 2: Configure your Shell
+
+Choose your active shell below to add the `ticker` command:
+
+##### Bash (`~/.bashrc`)
+
+Add an alias to `~/.bashrc`:
+
+```bash
+echo 'alias ticker="cd ~/.local/share/ticker && npm start --silent &"' >> ~/.bashrc
+source ~/.bashrc
+```
+
+##### Zsh (`~/.zshrc`)
+
+Add an alias to `~/.zshrc`:
+
+```zsh
+echo 'alias ticker="cd ~/.local/share/ticker && npm start --silent &"' >> ~/.zshrc
+source ~/.zshrc
+```
+
+##### Fish Shell (`~/.config/fish/config.fish`)
+
+Add an alias or function in Fish:
+
+```fish
+# Option A: Save persistent alias
+alias -s ticker="cd ~/.local/share/ticker; and npm start --silent &"
+
+# Option B: Or create a fish function in ~/.config/fish/functions/ticker.fish
+function ticker --description 'Launch Ticker clock gadget'
+    builtin cd ~/.local/share/ticker; and npm start --silent &
+end
+```
+
+##### Universal Launcher Script (`~/.local/bin/ticker`)
+
+Alternatively, create an executable wrapper in `~/.local/bin` (works across all shells if `~/.local/bin` is in your `$PATH`):
+
+```bash
+mkdir -p ~/.local/bin
+cat << 'EOF' > ~/.local/bin/ticker
+#!/usr/bin/env bash
+cd "$HOME/.local/share/ticker" && npm start --silent "$@" &
+EOF
+chmod +x ~/.local/bin/ticker
+```
+
+If `~/.local/bin` is not yet in your PATH, add:
+- **Bash / Zsh**: `export PATH="$HOME/.local/bin:$PATH"`
+- **Fish**: `fish_add_path ~/.local/bin`
+
+Once configured, simply type `ticker` in any terminal to launch your clock gadget.
 
 ### 3. Available Scripts
 
@@ -90,12 +151,17 @@ npm run dev
 
 ```text
 Ticker/
+├── .github/
+│   └── workflows/
+│       ├── test.yml          # CI: Typecheck, Vitest coverage, and build on push/PR
+│       └── release.yml       # Release: Builds and publishes GitHub Release on v* tags
 ├── scripts/
-│   ├── build.js          # Fast esbuild compilation and asset synchronization
-│   └── dev.js            # Live development runner
+│   ├── build.js              # Fast esbuild compilation and asset synchronization
+│   ├── dev.js                # Live development runner
+│   └── extract-changelog.js  # Extracts tag-specific release notes from CHANGELOG.md
 ├── src/
 │   ├── types/
-│   │   └── electron.d.ts # TypeScript interfaces for IPC bridge and config
+│   │   └── electron.d.ts     # TypeScript interfaces for IPC bridge and config
 │   ├── main/
 │   │   ├── main.ts       # Electron main process & transparent window lifecycle
 │   │   ├── window-math.ts# Pure window bounds checking, display math & config normalization
