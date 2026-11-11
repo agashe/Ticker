@@ -1,7 +1,11 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, screen } from 'electron';
 import * as path from 'path';
 import { loadConfig, saveConfig, AppConfig } from './config';
-import { calculateDraggedPosition } from './window-math';
+import {
+  calculateDraggedPosition,
+  isCoordinateVisible,
+  validateAndNormalizeConfig
+} from './window-math';
 import { createContextMenu } from './menu';
 
 // Set application name
@@ -15,6 +19,7 @@ app.disableHardwareAcceleration();
 app.commandLine.appendSwitch('enable-transparent-visuals');
 
 let mainWindow: BrowserWindow | null = null;
+let settingsWindow: BrowserWindow | null = null;
 let config: AppConfig;
 
 // Window dragging state
@@ -24,13 +29,46 @@ let initialWinY = 0;
 let dragOriginX = 0;
 let dragOriginY = 0;
 
+function openSettingsWindow() {
+  if (settingsWindow && !settingsWindow.isDestroyed()) {
+    settingsWindow.focus();
+    return;
+  }
+
+  const win = new BrowserWindow({
+    width: 420,
+    height: 560,
+    title: 'Ticker Settings',
+    resizable: false,
+    frame: true,         // Always framed for settings — it needs a title bar
+    transparent: false,
+    webPreferences: {
+      preload: path.join(__dirname, '../preload/preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: false
+    }
+  });
+
+  win.setMenuBarVisibility(false);
+  win.loadFile(path.join(__dirname, '../renderer/settings.html'));
+  win.once('closed', () => {
+    settingsWindow = null;
+  });
+  settingsWindow = win;
+}
+
 function createWindow(): BrowserWindow {
   config = loadConfig();
 
+  const width = config.width ?? 240;
+  const height = config.height ?? 240;
+  const frameless = config.frameless ?? true;
+
   const windowOptions: Electron.BrowserWindowConstructorOptions = {
-    width: 240,
-    height: 240,
-    frame: false,
+    width,
+    height,
+    frame: !frameless,  // frame: false = frameless
     transparent: true,
     resizable: false,
     hasShadow: false,
@@ -44,13 +82,22 @@ function createWindow(): BrowserWindow {
     }
   };
 
+  // Position: use stored coords if visible, otherwise default to top-right corner.
+  const displays = screen.getAllDisplays();
   if (typeof config.x === 'number' && typeof config.y === 'number') {
-    windowOptions.x = config.x;
-    windowOptions.y = config.y;
+    if (isCoordinateVisible({ x: config.x, y: config.y }, displays)) {
+      windowOptions.x = config.x;
+      windowOptions.y = config.y;
+    }
+  }
+  if (windowOptions.x === undefined || windowOptions.y === undefined) {
+    const primary = screen.getPrimaryDisplay();
+    const work = primary.workArea;
+    windowOptions.x = work.x + work.width - width;
+    windowOptions.y = work.y;
   }
 
   const win = new BrowserWindow(windowOptions);
-
   win.loadFile(path.join(__dirname, '../renderer/index.html'));
 
   win.on('moved', () => {
@@ -69,14 +116,18 @@ function notifyConfigUpdated() {
   if (mainWindow && !mainWindow.isDestroyed()) {
     mainWindow.webContents.send('config-updated', config);
   }
+  if (settingsWindow && !settingsWindow.isDestroyed()) {
+    settingsWindow.webContents.send('config-updated', config);
+  }
 }
 
 app.whenReady().then(() => {
   mainWindow = createWindow();
 
   // IPC: Window Dragging
-  ipcMain.on('start-drag', (event, { screenX, screenY }) => {
+  ipcMain.on('start-drag', (_event, { screenX, screenY }) => {
     if (!mainWindow || mainWindow.isDestroyed()) return;
+    if (config.lockedPosition) return;
     isDragging = true;
     const [x, y] = mainWindow.getPosition();
     initialWinX = x;
@@ -85,7 +136,7 @@ app.whenReady().then(() => {
     dragOriginY = screenY;
   });
 
-  ipcMain.on('drag', (event, { screenX, screenY }) => {
+  ipcMain.on('drag', (_event, { screenX, screenY }) => {
     if (!isDragging || !mainWindow || mainWindow.isDestroyed()) return;
     const nextPos = calculateDraggedPosition(
       { x: initialWinX, y: initialWinY },
@@ -111,7 +162,7 @@ app.whenReady().then(() => {
     const menu = createContextMenu(mainWindow, config, (updatedConfig) => {
       config = updatedConfig;
       notifyConfigUpdated();
-    });
+    }, openSettingsWindow);
     menu.popup({ window: mainWindow });
   });
 
@@ -122,8 +173,23 @@ app.whenReady().then(() => {
     }
   });
 
-  // IPC: Config getters/setters
+  // IPC: Open Settings
+  ipcMain.on('open-settings', () => {
+    openSettingsWindow();
+  });
+
+  // IPC: Get Config
   ipcMain.handle('get-config', () => {
+    return config;
+  });
+
+  // IPC: Update Config (partial merge from settings window)
+  ipcMain.handle('update-config', (_event, partial: Partial<AppConfig>) => {
+    const merged = { ...config, ...partial } as AppConfig;
+    const displays = screen.getAllDisplays();
+    config = validateAndNormalizeConfig(merged, displays);
+    saveConfig(config);
+    notifyConfigUpdated();
     return config;
   });
 

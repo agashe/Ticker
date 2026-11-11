@@ -48,12 +48,11 @@ describe('Config Persistence - loadConfig & saveConfig', () => {
       );
 
       const config = loadConfig();
-      expect(config).toEqual({
-        x: 400,
-        y: 200,
-        alwaysOnTop: false,
-        theme: 'dark'
-      });
+      // Core values must be loaded correctly; normalizer fills in new field defaults.
+      expect(config.x).toBe(400);
+      expect(config.y).toBe(200);
+      expect(config.alwaysOnTop).toBe(false);
+      expect(config.theme).toBe('dark');
     });
 
     it('gracefully returns DEFAULT_CONFIG when file content is invalid JSON', () => {

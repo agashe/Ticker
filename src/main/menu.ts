@@ -4,8 +4,8 @@ import { AppConfig, saveConfig } from './config';
 export interface MenuActions {
   onToggleAlwaysOnTop: (checked: boolean) => void;
   onThemeChange: (theme: 'light' | 'dark') => void;
-  onCenter: () => void;
   onClose: () => void;
+  onOpenSettings: () => void;
 }
 
 export interface MenuState {
@@ -47,10 +47,11 @@ export function buildContextMenuTemplate(
         }
       ]
     },
+    { type: 'separator' },
     {
-      label: 'Center Clock',
+      label: 'Settings…',
       click: () => {
-        actions.onCenter();
+        actions.onOpenSettings();
       }
     },
     { type: 'separator' },
@@ -67,7 +68,8 @@ export function buildContextMenuTemplate(
 export function createContextMenu(
   win: BrowserWindow,
   config: AppConfig,
-  onConfigChange: (updated: AppConfig) => void
+  onConfigChange: (updated: AppConfig) => void,
+  onOpenSettings: () => void
 ): Menu {
   const template = buildContextMenuTemplate(
     {
@@ -82,15 +84,11 @@ export function createContextMenu(
         saveConfig(config);
         onConfigChange(config);
       },
-      onCenter: () => {
-        win.center();
-        const [x, y] = win.getPosition();
-        config.x = x;
-        config.y = y;
-        saveConfig(config);
-      },
       onClose: () => {
         win.close();
+      },
+      onOpenSettings: () => {
+        onOpenSettings();
       }
     },
     {

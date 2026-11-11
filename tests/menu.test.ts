@@ -28,8 +28,8 @@ describe('Context Menu - buildContextMenuTemplate', () => {
   const createMockActions = (): MenuActions => ({
     onToggleAlwaysOnTop: vi.fn(),
     onThemeChange: vi.fn(),
-    onCenter: vi.fn(),
-    onClose: vi.fn()
+    onClose: vi.fn(),
+    onOpenSettings: vi.fn()
   });
 
   const baseState: MenuState = {
@@ -41,12 +41,14 @@ describe('Context Menu - buildContextMenuTemplate', () => {
     const actions = createMockActions();
     const template = buildContextMenuTemplate(actions, baseState);
 
-    expect(template).toHaveLength(5);
+    // Items: AlwaysOnTop, Theme, separator, Settings, separator, Close = 6
+    expect(template).toHaveLength(6);
     expect(template[0].label).toBe('Always on Top');
     expect(template[1].label).toBe('Theme');
-    expect(template[2].label).toBe('Center Clock');
-    expect(template[3].type).toBe('separator');
-    expect(template[4].label).toBe('Close Ticker');
+    expect(template[2].type).toBe('separator');
+    expect(template[3].label).toBe('Settings…');
+    expect(template[4].type).toBe('separator');
+    expect(template[5].label).toBe('Close Ticker');
   });
 
   it('reflects and toggles "Always on Top" checkbox state', () => {
@@ -55,7 +57,6 @@ describe('Context Menu - buildContextMenuTemplate', () => {
     expect(templateOn[0].type).toBe('checkbox');
     expect(templateOn[0].checked).toBe(true);
 
-    // Click with item checked = false
     templateOn[0].click?.({ checked: false } as any, undefined as any, undefined as any);
     expect(actions.onToggleAlwaysOnTop).toHaveBeenCalledWith(false);
 
@@ -84,28 +85,26 @@ describe('Context Menu - buildContextMenuTemplate', () => {
     expect(darkOption.type).toBe('radio');
     expect(darkOption.checked).toBe(true);
 
-    // Clicking light option triggers onThemeChange('light')
     lightOption.click();
     expect(actions.onThemeChange).toHaveBeenCalledWith('light');
 
-    // Clicking dark option triggers onThemeChange('dark')
     darkOption.click();
     expect(actions.onThemeChange).toHaveBeenCalledWith('dark');
   });
 
-  it('triggers onCenter when "Center Clock" is clicked', () => {
+  it('triggers onOpenSettings when "Settings…" is clicked', () => {
     const actions = createMockActions();
     const template = buildContextMenuTemplate(actions, baseState);
-    const centerItem = template[2];
+    const settingsItem = template[3];
 
-    centerItem.click?.({} as any, undefined as any, undefined as any);
-    expect(actions.onCenter).toHaveBeenCalledTimes(1);
+    settingsItem.click?.({} as any, undefined as any, undefined as any);
+    expect(actions.onOpenSettings).toHaveBeenCalledTimes(1);
   });
 
   it('configures "Close Ticker" with CmdOrCtrl+Q accelerator and triggers onClose', () => {
     const actions = createMockActions();
     const template = buildContextMenuTemplate(actions, baseState);
-    const closeItem = template[4];
+    const closeItem = template[5];
 
     expect(closeItem.accelerator).toBe('CmdOrCtrl+Q');
     closeItem.click?.({} as any, undefined as any, undefined as any);
@@ -122,7 +121,6 @@ describe('Context Menu - createContextMenu integration', () => {
     const mockWin: any = {
       isAlwaysOnTop: vi.fn().mockReturnValue(true),
       setAlwaysOnTop: vi.fn(),
-      center: vi.fn(),
       getPosition: vi.fn().mockReturnValue([500, 300]),
       close: vi.fn()
     };
@@ -133,13 +131,14 @@ describe('Context Menu - createContextMenu integration', () => {
     };
 
     const onConfigChange = vi.fn();
+    const onOpenSettings = vi.fn();
 
-    createContextMenu(mockWin, initialConfig, onConfigChange);
+    createContextMenu(mockWin, initialConfig, onConfigChange, onOpenSettings);
 
     expect(Menu.buildFromTemplate).toHaveBeenCalledTimes(1);
     const template = vi.mocked(Menu.buildFromTemplate).mock.calls[0][0] as any[];
 
-    // 1. Test toggling Always on Top
+    // 1. Toggle Always on Top
     const alwaysOnTopItem = template[0];
     alwaysOnTopItem.click({ checked: false });
     expect(mockWin.setAlwaysOnTop).toHaveBeenCalledWith(false);
@@ -147,23 +146,20 @@ describe('Context Menu - createContextMenu integration', () => {
     expect(configModule.saveConfig).toHaveBeenCalledWith(initialConfig);
     expect(onConfigChange).toHaveBeenCalledWith(initialConfig);
 
-    // 2. Test switching Theme
+    // 2. Switch Theme
     const themeSubmenu = template[1].submenu;
-    themeSubmenu[1].click(); // Click Dark
+    themeSubmenu[1].click(); // Dark
     expect(initialConfig.theme).toBe('dark');
     expect(configModule.saveConfig).toHaveBeenCalledWith(initialConfig);
     expect(onConfigChange).toHaveBeenCalledWith(initialConfig);
 
-    // 3. Test Center Clock
-    const centerItem = template[2];
-    centerItem.click();
-    expect(mockWin.center).toHaveBeenCalled();
-    expect(initialConfig.x).toBe(500);
-    expect(initialConfig.y).toBe(300);
-    expect(configModule.saveConfig).toHaveBeenCalledWith(initialConfig);
+    // 3. Open Settings (index 3, after separator at 2)
+    const settingsItem = template[3];
+    settingsItem.click();
+    expect(onOpenSettings).toHaveBeenCalled();
 
-    // 4. Test Close Ticker
-    const closeItem = template[4];
+    // 4. Close Ticker (index 5, after separator at 4)
+    const closeItem = template[5];
     closeItem.click();
     expect(mockWin.close).toHaveBeenCalled();
   });

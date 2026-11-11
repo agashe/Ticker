@@ -20,6 +20,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getConfig: (): Promise<ClockConfig> => {
     return ipcRenderer.invoke('get-config');
   },
+  updateConfig: (partial: Partial<ClockConfig>): Promise<ClockConfig> => {
+    return ipcRenderer.invoke('update-config', partial);
+  },
+  openSettings: () => {
+    ipcRenderer.send('open-settings');
+  },
   onConfigUpdated: (callback: (config: ClockConfig) => void) => {
     const handler = (_event: Electron.IpcRendererEvent, config: ClockConfig) => {
       callback(config);

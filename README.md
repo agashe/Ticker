@@ -1,12 +1,12 @@
 # Ticker
 
-A minimalist, transparent desktop clock gadget built with **TypeScript** and **Electron**. Ticker floats cleanly on your desktop with no window frame or rectangular background—just a crisp circular analog clock with smooth, real-time 3-hand movement.
+A minimalist, transparent desktop clock gadget built with **TypeScript** and **Electron**. Ticker floats cleanly on your desktop with no window frame or rectangular background — just a crisp circular analog clock with smooth, real-time 3-hand movement.
 
 
 
 ## Features
 
-- **Frameless Circular Gadget**: Seamlessly transparent window—only the circular clock dial floats on your desktop.
+- **Frameless Circular Gadget**: Seamlessly transparent window — only the circular clock dial floats on your desktop. Falls back to a standard framed window on DEs/WMs that do not support transparency.
 - **Classic 3-Hand Movement**: Hour hand, minute hand, and a continuous 60fps sweep second hand.
 - **Monochrome Design**: High-contrast, clean black and white aesthetic.
   - **Light Mode** (default): Crisp white dial with dark tick marks and hands.
@@ -14,9 +14,16 @@ A minimalist, transparent desktop clock gadget built with **TypeScript** and **E
 - **Desktop Friendly**:
   - **Draggable**: Click and drag from anywhere on the clock to position it.
   - **Position Memory**: Remembers its screen location across restarts.
+  - **Default Position**: Placed in the top-right corner of your primary display on first launch.
   - **Always on Top**: Kept in view while you work (toggleable via menu).
+- **Settings Panel** (right-click → Settings…):
+  - **Automatic Time & Timezone**: Syncs to your host machine's clock and timezone by default.
+  - **Manual Time**: Freeze the clock at any custom date and time.
+  - **Timezone Override**: Pin the clock to any UTC offset (e.g. `+240` for UTC+4).
+  - **Custom Size**: Resize the clock window from 80 px to 800 px.
+  - **Lock Position**: Disable drag-and-drop to anchor the clock in place.
 - **Multiple Ways to Close & Control**:
-  - **Right-Click Context Menu**: Access options to toggle *Always on Top*, switch *Theme*, *Center Clock*, or *Close*.
+  - **Right-Click Context Menu**: Toggle *Always on Top*, switch *Theme*, open *Settings*, or *Close*.
   - **Hover Close Button**: A subtle `×` button appears when hovering over the top of the clock.
   - **Keyboard Shortcuts**: Press `Esc`, `Ctrl+Q`, or `Ctrl+W` anytime to exit.
 
@@ -24,7 +31,7 @@ A minimalist, transparent desktop clock gadget built with **TypeScript** and **E
 
 ## Prerequisites
 
-- **Node.js**: `v18.0.0` or newer (tested on Node v24).
+- **Node.js**: `v18.0.0` or newer.
 - **Linux**: X11 or Wayland with compositing enabled (e.g. GNOME, KDE, XFCE + Picom) for transparent window rendering.
 
 
@@ -67,7 +74,7 @@ For live development with hot rebuilds:
 npm run dev
 ```
 
-### 3. Manual Installation on Linux (Home Directory)
+### 3. Manual Installation on Linux
 
 To install Ticker permanently under your user's home directory and launch it from anywhere via your terminal:
 
@@ -87,8 +94,6 @@ Choose your active shell below to add the `ticker` command:
 
 ##### Bash (`~/.bashrc`)
 
-Add an alias to `~/.bashrc`:
-
 ```bash
 echo 'alias ticker="cd ~/.local/share/ticker && npm start --silent &"' >> ~/.bashrc
 source ~/.bashrc
@@ -96,16 +101,12 @@ source ~/.bashrc
 
 ##### Zsh (`~/.zshrc`)
 
-Add an alias to `~/.zshrc`:
-
 ```zsh
 echo 'alias ticker="cd ~/.local/share/ticker && npm start --silent &"' >> ~/.zshrc
 source ~/.zshrc
 ```
 
 ##### Fish Shell (`~/.config/fish/config.fish`)
-
-Add an alias or function in Fish:
 
 ```fish
 # Option A: Save persistent alias
@@ -119,8 +120,6 @@ end
 
 ##### Universal Launcher Script (`~/.local/bin/ticker`)
 
-Alternatively, create an executable wrapper in `~/.local/bin` (works across all shells if `~/.local/bin` is in your `$PATH`):
-
 ```bash
 mkdir -p ~/.local/bin
 cat << 'EOF' > ~/.local/bin/ticker
@@ -133,8 +132,6 @@ chmod +x ~/.local/bin/ticker
 If `~/.local/bin` is not yet in your PATH, add:
 - **Bash / Zsh**: `export PATH="$HOME/.local/bin:$PATH"`
 - **Fish**: `fish_add_path ~/.local/bin`
-
-Once configured, simply type `ticker` in any terminal to launch your clock gadget.
 
 ### 4. Available Scripts
 
@@ -156,59 +153,27 @@ Once configured, simply type `ticker` in any terminal to launch your clock gadge
 
 | Action | Control |
 | :--- | :--- |
-| **Move Clock** | Click & drag anywhere on the clock |
+| **Move Clock** | Click & drag anywhere on the clock (unless position is locked) |
 | **Open Menu** | Right-click anywhere on the clock |
+| **Open Settings** | Right-click → *Settings…* |
 | **Quick Close** | Press `Esc`, `Ctrl + Q`, or `Ctrl + W` |
 | **Hover Close** | Hover near the top-right of the clock to reveal the `×` button |
 | **Toggle Always on Top** | Right-click → check/uncheck *Always on Top* |
 | **Switch Theme** | Right-click → *Theme* → *Light* or *Dark* |
-| **Reset Position** | Right-click → *Center Clock* |
 
 
 
-## Project Structure
+## Settings
 
-```text
-Ticker/
-├── .github/
-│   └── workflows/
-│       ├── test.yml          # CI: Typecheck, Vitest coverage, and build on push/PR
-│       └── release.yml       # Release: Builds and publishes GitHub Release on v* tags
-├── scripts/
-│   ├── build.js              # Fast esbuild compilation and asset synchronization
-│   ├── dev.js                # Live development runner
-│   ├── package.js            # Linux AMD64 ELF packager and release archive generator
-│   └── extract-changelog.js  # Extracts tag-specific release notes from CHANGELOG.md
-├── src/
-│   ├── types/
-│   │   └── electron.d.ts     # TypeScript interfaces for IPC bridge and config
-│   ├── main/
-│   │   ├── main.ts       # Electron main process & transparent window lifecycle
-│   │   ├── window-math.ts# Pure window bounds checking, display math & config normalization
-│   │   ├── config.ts     # Settings persistence (position, theme, alwaysOnTop)
-│   │   └── menu.ts       # Native right-click context menu and template builder
-│   ├── preload/
-│   │   └── preload.ts    # Secure contextBridge API for renderer
-│   └── renderer/
-│       ├── index.html    # Clock DOM mount point
-│       ├── styles.css    # Transparent layout, monochrome themes, animations
-│       ├── clock-math.ts # Pure angle math, continuous sweep logic & dial geometry
-│       ├── clock.ts      # Vector SVG dial generation & animation frame loop
-│       ├── event-helpers.ts # Pure shortcut detection, theme classes & drag guards
-│       └── renderer.ts   # Mouse drag, context menu, and keyboard handling
-├── tests/
-│   ├── clock-math.test.ts   # Unit tests for clock angles, sweep & tick trigonometry
-│   ├── window-math.test.ts  # Unit tests for multi-display bounds, normalization & drag
-│   ├── event-helpers.test.ts# Unit tests for shortcuts, theme resolution & drag triggers
-│   ├── menu.test.ts         # Unit tests for context menu template & BrowserWindow integration
-│   └── config.test.ts       # Unit tests for config loading, fallback defaults & save
-├── vitest.config.mts     # Vitest configuration with v8 coverage
-├── CHANGELOG.md          # User-facing application feature release log
-├── SPECS.md              # Technical specifications & architectural decisions
-├── tsconfig.json
-├── tsconfig.test.json
-└── package.json
-```
+Open the Settings panel via right-click → **Settings…**
+
+| Setting | Description |
+| :--- | :--- |
+| **Use system time & timezone** | When checked (default), the clock automatically syncs to your machine's current time and timezone. |
+| **Manual time** | Visible when system time is off. Set a custom date & time to freeze the clock. |
+| **Timezone offset (minutes)** | Override the timezone by entering a UTC offset in minutes. Leave blank to use the system timezone. E.g. `+240` for UTC+4, `-300` for UTC-5. |
+| **Width / Height (px)** | Resize the clock window. Valid range: 80 – 800 px. Default: 240 × 240 px. |
+| **Lock position** | When checked, drag-and-drop is disabled and the clock stays exactly where it is. |
 
 
 

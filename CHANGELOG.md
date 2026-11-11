@@ -18,6 +18,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.2.0] - 2026-11-11
+
+### Settings Window
+
+A new **Settings** panel is now accessible via right-click → **Settings…** This replaces the previously removed *Center Clock* menu entry and provides a dedicated, persistent settings interface.
+
+#### Time Configuration
+- **Automatic system time** (default): The clock automatically syncs to the host machine's current time and timezone — no configuration required.
+- **Manual time**: Uncheck *Use system time* to freeze the clock at a custom date and time of your choice.
+- **Timezone override**: Optionally enter a UTC offset in minutes (e.g. `+240` for UTC+4, `−300` for UTC−5) to display a foreign timezone while keeping the clock running live. Leave blank to use the system timezone.
+
+#### Window Configuration
+- **Custom size**: Set the clock window width and height anywhere from **80 px to 800 px**. The default is 240 × 240 px.
+- **Lock position**: Enable to disable drag-and-drop, keeping the clock anchored in place.
+
+### Context Menu Changes
+- Added **Settings…** entry to the right-click context menu.
+- Removed **Center Clock** entry.
+
+### Default Position
+- When no saved position exists (e.g. first launch or display configuration change), the clock now defaults to the **top-right corner** of the primary display's work area instead of the screen center.
+
+### Position Lock
+- When *Lock position* is enabled in Settings, clicking and dragging on the clock face is completely disabled.
+
+---
+
 ## [0.1.0] - 2026-11-10
 
 ### Initial Release
@@ -43,7 +70,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Native Context Menu**: Right-click anywhere on the clock to access controls:
   - Toggle *Always on Top*
   - Switch between *Light* and *Dark* themes
-  - *Center Clock* to quickly reset position
   - *Close Ticker*
 - **Hover Close Button**: A subtle `×` button appears when hovering near the top-right of the dial for quick mouse exits.
 - **Keyboard Shortcuts**: Exit immediately at any time by pressing `Escape`, `Ctrl + Q`, or `Ctrl + W` (and `Cmd + Q` / `Cmd + W` on macOS).

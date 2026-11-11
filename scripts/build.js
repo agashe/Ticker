@@ -10,7 +10,7 @@ function copyStaticFiles() {
     fs.mkdirSync(distRenderer, { recursive: true });
   }
 
-  const files = ['index.html', 'styles.css'];
+  const files = ['index.html', 'styles.css', 'settings.html'];
   for (const file of files) {
     const srcPath = path.join(__dirname, '../src/renderer', file);
     const destPath = path.join(distRenderer, file);
@@ -53,22 +53,33 @@ async function runBuild() {
       sourcemap: true
     };
 
+    const settingsOptions = {
+      entryPoints: [path.join(__dirname, '../src/renderer/settings.ts')],
+      outfile: path.join(__dirname, '../dist/renderer/settings.js'),
+      bundle: true,
+      platform: 'browser',
+      target: 'es2022',
+      sourcemap: true
+    };
+
     if (isWatch) {
-      const [ctxMain, ctxPreload, ctxRenderer] = await Promise.all([
+      const [ctxMain, ctxPreload, ctxRenderer, ctxSettings] = await Promise.all([
         esbuild.context(mainOptions),
         esbuild.context(preloadOptions),
-        esbuild.context(rendererOptions)
+        esbuild.context(rendererOptions),
+        esbuild.context(settingsOptions)
       ]);
 
       await Promise.all([
         ctxMain.watch(),
         ctxPreload.watch(),
-        ctxRenderer.watch()
+        ctxRenderer.watch(),
+        ctxSettings.watch()
       ]);
 
       // Watch static assets
       fs.watch(path.join(__dirname, '../src/renderer'), (eventType, filename) => {
-        if (filename === 'index.html' || filename === 'styles.css') {
+        if (filename === 'index.html' || filename === 'styles.css' || filename === 'settings.html') {
           copyStaticFiles();
           console.log(`[static] updated ${filename}`);
         }
@@ -79,7 +90,8 @@ async function runBuild() {
       await Promise.all([
         esbuild.build(mainOptions),
         esbuild.build(preloadOptions),
-        esbuild.build(rendererOptions)
+        esbuild.build(rendererOptions),
+        esbuild.build(settingsOptions)
       ]);
       console.log('[build] Build completed successfully.');
     }

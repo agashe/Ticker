@@ -3,6 +3,13 @@ export interface ClockConfig {
   y?: number;
   alwaysOnTop: boolean;
   theme: 'light' | 'dark';
+  useSystemTime?: boolean;
+  manualTime?: number;
+  timezoneOffsetMinutes?: number;
+  lockedPosition?: boolean;
+  width?: number;
+  height?: number;
+  frameless?: boolean;
 }
 
 export interface ElectronAPI {
@@ -12,6 +19,8 @@ export interface ElectronAPI {
   stopDrag: () => void;
   showContextMenu: () => void;
   getConfig: () => Promise<ClockConfig>;
+  updateConfig: (partial: Partial<ClockConfig>) => Promise<ClockConfig>;
+  openSettings: () => void;
   onConfigUpdated: (callback: (config: ClockConfig) => void) => () => void;
 }
 
